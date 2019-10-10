@@ -6,7 +6,7 @@ RSpec.describe Lex::Lexer, 'position' do
   it "calculates line number and position info from input" do
     code = unindent(<<-EOS)
       x = 1
-      y = 2
+      y = 02
       s = x + y
     EOS
 
