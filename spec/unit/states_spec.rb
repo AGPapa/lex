@@ -31,7 +31,7 @@ RSpec.describe Lex::Lexer, '#states' do
         token
       end
 
-      rule(:brace_RBRACE, /}/) do |lexer, token|
+      rule(:RBRACE, /}/, [:brace]) do |lexer, token|
         lexer.pop_state
         token
       end
@@ -62,7 +62,7 @@ RSpec.describe Lex::Lexer, '#states' do
         lexer.push_state(:htmlcomment)
       end
 
-      rule(:htmlcomment_end, /-->/) do |lexer, token|
+      rule(:htmlcomment_end, /-->/, [:htmlcomment]) do |lexer, token|
         lexer.pop_state
       end
 
@@ -88,7 +88,7 @@ RSpec.describe Lex::Lexer, '#states' do
 
       rule(:WORD, /\w+/)
 
-      rule(:htmlcomment_WORD, /\w+/)
+      rule(:HTML_WORD, /\w+/, [:htmlcomment])
 
       ignore " "
     end)
@@ -106,7 +106,7 @@ RSpec.describe Lex::Lexer, '#states' do
 
       rule(:WORD, /\w+/)
 
-      rule(:htmlcomment_WORD, /\w+/)
+      rule(:WORD, /\w+/, [:htmlcomment])
 
       error(:htmlcomment)
     end)
@@ -128,7 +128,7 @@ RSpec.describe Lex::Lexer, '#states' do
         lexer.push_state(:htmlcomment)
       end
 
-      rule(:htmlcomment_end, /-->/) do |lexer, token|
+      rule(:htmlcomment_end, /-->/, [:htmlcomment]) do |lexer, token|
         lexer.pop_state
       end
 
@@ -159,7 +159,7 @@ RSpec.describe Lex::Lexer, '#states' do
         lexer.push_state(:htmlcomment)
       end
 
-      rule(:htmlcomment_end, /-->/) do |lexer, token|
+      rule(:htmlcomment_end, /-->/, [:htmlcomment]) do |lexer, token|
         lexer.pop_state
       end
 
@@ -179,7 +179,7 @@ RSpec.describe Lex::Lexer, '#states' do
     stub_const('MyLexer', Class.new(Lex::Lexer) do
       tokens( :WORD )
 
-      states( htmlcomment: :inclusive )
+      states( htmlcomment: :exclusive )
 
       rule(:WORD, /\w+/)
 

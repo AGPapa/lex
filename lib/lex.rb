@@ -11,7 +11,7 @@ require 'lex/source_line'
 require 'lex/state'
 require 'lex/token'
 require 'lex/lexer'
-require "lex/version"
+require 'lex/version'
 
 module Lex
   # A base class for all Lexer errors
