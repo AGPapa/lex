@@ -41,27 +41,33 @@ module Lex
 
       # Specify lexing rule
       #
-      # @param [Symbol] name
-      #   the rule name
+      # @param [Symbol] token_name
+      #   the name of the token
       #
       # @param [Regex] pattern
       #   the regex pattern
       #
+      # @param [Array] state_names
+      #   the states that the rule applies in
+      #   if left blank, then the rule applies in all inclusive states
+      #
       # @api public
-      def rule(name, pattern, &action)
-        state_names, token_name = *extract_state_token(name)
+      def rule(token_name, pattern, state_names = [], &action)
+        if state_names.empty?
+          @state_info.each do |state_name, state_type|
+            state_names.push(state_name) if state_type == :inclusive && !state_names.include?(state_name)
+          end
+        end
         if token_name =~ /^[[:upper:]]*$/ && !@lex_tokens.include?(token_name)
-          complain("Rule '#{name}' defined for" \
-                   " an unspecified token #{token_name}")
+          complain("Rule defined for an unspecified token #{token_name}")
         end
         state_names.each do |state_name|
           state = @state_lexemes[state_name]
           state << Lexeme.new(token_name, pattern, &action)
         end
-        update_inclusive_states
         state_names.each do |state_name|
           if @state_re[state_name].key?(token_name)
-            complain("Rule '#{name}' redefined.")
+            complain("Rule for token '#{token_name}' and state '#{state_name}' redefined.")
           end
           @state_re[state_name][token_name] = pattern
         end
@@ -116,45 +122,6 @@ module Lex
       end
 
       private
-
-      # For inclusive states copy over initial state rules
-      #
-      # @api private
-      def update_inclusive_states
-        @state_info.each do |state_name, state_type|
-          if state_name != :initial && state_type == :inclusive
-            initial_state = @state_lexemes[:initial]
-            @state_lexemes[state_name].update(initial_state.lexemes)
-          end
-        end
-      end
-
-      # Extract tuple of state names and token name
-      #
-      # @param [Symbol] name
-      #   the rule name
-      #
-      # @return [Array[Symbol], Symbol]
-      #   returns tuples [states, token]
-      #
-      # @api private
-      def extract_state_token(name)
-        parts = name.to_s.split('_')
-        state_i = 0
-        parts.each_with_index do |part, i|
-          if !@state_info.keys.include?(part.to_sym)
-            state_i = i
-            break
-          end
-        end
-        states = if state_i > 0
-                   parts[0...state_i].map(&:to_sym)
-                 else
-                   [:initial]
-                 end
-        token_name = parts[state_i..-1].join('_').to_sym
-        [states, token_name]
-      end
 
       # @api private
       def complain(*args)

@@ -48,7 +48,7 @@ RSpec.describe Lex::Lexer, '#rule' do
 
         rule(:WORD, /\w+/)
       end
-    }.to raise_error(Lex::LexerError, /Rule 'WORD' redefined./)
+    }.to raise_error(Lex::LexerError, /Rule for token 'WORD' and state 'initial' redefined/)
   end
 
   it "throws error if using token in rule without prior specifying" do
@@ -58,6 +58,6 @@ RSpec.describe Lex::Lexer, '#rule' do
 
         rule(:UNKNOWN, /a/)
       end
-    }.to raise_error(Lex::LexerError, /Rule 'UNKNOWN' defined for an unspecified token UNKNOWN/)
+    }.to raise_error(Lex::LexerError, /Rule defined for an unspecified token UNKNOWN/)
   end
 end
